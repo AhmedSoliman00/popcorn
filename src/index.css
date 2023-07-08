@@ -309,6 +309,7 @@ body {
 
 .btn-add:hover {
   background-color: var(--color-primary-light);
+  
 }
 
 .seconds {
@@ -341,6 +342,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+
+  
 }
 
 /*
