@@ -12,7 +12,7 @@ const starContainerStyle = {
   gap: "4px",
 };
 
-const StarRating = ({ maxRating = 5, color = "#FFD700", size = 48 ,className = ""}) => {
+const StarRating = ({ maxRating = 5, color = "#FFD700", size = 48 ,textSize= 16 ,className = ""}) => {
   // the defualt prop is 5
   const [rating, setRating] = useState(2);
   const [tempRating, setTempRating] = useState(0);
@@ -21,7 +21,7 @@ const StarRating = ({ maxRating = 5, color = "#FFD700", size = 48 ,className = "
     lineHeight: "1",
     margin: "0",
     color,
-    fontSize: `${size}px`,
+    fontSize: `${textSize}px`,
   };
   return (
     <div style={containerStyle} className={className}>
@@ -45,14 +45,16 @@ const StarRating = ({ maxRating = 5, color = "#FFD700", size = 48 ,className = "
   );
 };
 
-const startStyle = {
-  width: "40px",
-  height: "40px",
-  display: "block",
-  cursor: "pointer",
-};
 
-function Star({ onClick, full, hoverIn, hoverOut,color,size }) {
+
+function Star({ onClick, full, hoverIn, hoverOut,color,size=40 }) {
+
+  const startStyle = {
+    width: `${size}px`,
+    height: `${size}px`,
+    display: "block",
+    cursor: "pointer",
+  };
   return (
     <span
       role="button"
