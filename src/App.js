@@ -77,41 +77,49 @@ export default function App() {
     setWatched(watched=> watched.filter(movie=> movie.id !== id  ))
   }
 
-  useEffect(
-    function () {
-      async function fetchMovies() {
-        try {
-          setIsLoading(true);
-          setError("");
-          const res = await fetch(
-            `http://www.omdbapi.com/?apikey=${key}&s=${query}`
-          );
-          const data = await res.json();
-          console.log(data);
-          if (!res.ok) {
-            throw new Error("something went wrong with fetching errors");
-          }
-          if (data.Response === "False")
-            throw new Error("couldnt find this movie");
-
-          setMovies(data.Search);
-        } catch (e) {
-          console.error(e.message);
-          setError(e.message);
-        } finally {
-          setIsLoading(false);
-        }
-      }
-      if (query.length < 3) {
-        setMovies([]);
+  useEffect(function () {
+    let controller = new AbortController();
+  
+    async function fetchMovies() {
+      try {
+        setIsLoading(true);
         setError("");
-        return;
+        const res = await fetch(
+          `http://www.omdbapi.com/?apikey=${key}&s=${query}`,
+          { signal: controller.signal }
+        );
+        const data = await res.json();
+        console.log(data);
+        if (!res.ok) {
+          throw new Error("something went wrong with fetching errors");
+        }
+        if (data.Response === "False") throw new Error("couldnt find this movie");
+  
+        setMovies(data.Search);
+        setError("");
+      } catch (e) {
+        console.error(e.message);
+        if (e.name !== "AbortError") {
+          setError(e.message);
+        }
+      } finally {
+        setIsLoading(false);
       }
-      fetchMovies();
-    },
-    [query]
-  ); // query state should be in the dependancies array to run effect when it changes
-
+    }
+  
+    if (query.length < 3) {
+      setMovies([]);
+      setError("");
+      return;
+    }
+  
+    fetchMovies();
+  
+    return function cleanup() {
+      controller.abort();
+    };
+  }, [query]);
+  
   let content; // content on the left box (movies list)
   if (isLoading) {
     content = <Loader />;
@@ -183,6 +191,7 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched,onDelete
   console.log(title, year);
   useEffect(
     function () {
+      
       async function getMovieDetails() {
         setIsLoading(true);
         const res = await fetch(
@@ -196,6 +205,16 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched,onDelete
     },
     [selectedId]
   );
+
+  useEffect(
+    function(){
+      if(!title) return
+      document.title = `Movie | ${title}`
+      return function(){
+        document.title = "usePopcorn"
+      }
+    },[title]
+  )
   function handleAdd() {
     const newWatchedMovie = {
       id: selectedId,
